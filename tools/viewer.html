@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scoreboard</title>
+<style>
+:root{--bg:#fff;--fg:#000;--mute:#888;--line:#ddd;--row:#eef2f7;--score:#6a6af4;--rank:#d9342b;--band:rgba(226,110,110,.38)}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#222;font:16px/1.3 Arial,Helvetica,sans-serif}
+.topbar{display:flex;gap:24px;align-items:center;flex-wrap:wrap;background:#ececec;border-bottom:1px solid #d6d6d6;padding:8px 16px;position:sticky;top:0;z-index:5}
+.topbar input[type=search]{width:230px;padding:8px 10px;border:1px solid #ddd;border-radius:4px;font:inherit;font-size:15px;background:#fff;color:#222}
+.topbar label{display:flex;gap:10px;align-items:center;flex:1;min-width:220px;color:#444}
+.topbar input[type=range]{flex:1;accent-color:#4f9f55}
+.page{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;max-width:1500px;margin:0 auto;padding:14px 18px 60px;align-items:start}
+@media(max-width:900px){.page{grid-template-columns:minmax(0,1fr) 190px}}
+@media(max-width:560px){.page{grid-template-columns:minmax(0,1fr) 150px;gap:8px}#subs li{padding:6px 8px}#subs .who{display:none}}
+#sub:empty{display:none}
+#sub{color:#b00020;margin-bottom:8px}
+.wrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:center;white-space:nowrap}
+th{background:#e2e2e2;background-clip:padding-box;border:2px solid #fff;border-radius:5px;color:#000;font-weight:700;height:40px;position:sticky;top:0}
+th:nth-child(1),td:nth-child(1){width:92px;min-width:92px;max-width:92px}
+th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
+tbody tr{cursor:pointer;position:relative}
+tbody tr:nth-child(even){background:#f2f2f2}
+tbody tr:hover,tbody tr:focus-visible{background:#e8eef6;outline:none}
+tr.sel td{font-weight:700}
+tbody tr.pin td{box-shadow:inset 0 0 0 100px rgba(0,0,0,.05);font-weight:700}
+tbody tr.pin td:nth-child(2),tbody tr.pin td:nth-child(3){background:#e4e4e4}
+tbody tr.none{cursor:default;background:none!important}
+td.rank{cursor:pointer;font-weight:700;color:#1c1e24;border-radius:8px;position:relative;overflow:visible}
+td.rank.un{color:#888;font-style:italic}
+td.rank:hover{box-shadow:inset 0 0 0 100px rgba(0,0,0,.1)}
+tbody tr.pin td.rank{box-shadow:inset 0 0 0 100px rgba(0,0,0,.12)}
+tbody tr.pin td.rank:hover{box-shadow:inset 0 0 0 100px rgba(0,0,0,.2)}
+.chg{position:absolute;right:5px;top:50%;margin-top:-7px;line-height:14px;font-size:10px;font-weight:700;font-style:normal;animation:chgfade 4s linear forwards}
+.chg.up{color:#17701f}
+.chg.dn{color:#b3261e}
+@keyframes chgfade{0%,75%{opacity:1}100%{opacity:0}}
+img.flag{height:18px;width:auto;max-width:40px;vertical-align:middle;border:1px solid #ddd;border-radius:2px;background:#fff}
+.card h2 img.flag{height:26px;max-width:60px;margin-right:10px}
+#pinbox{margin-top:18px;border:1px solid #ddd;border-radius:5px;padding:8px 12px 10px}
+#pinbox h3{margin:2px 0 6px;font-size:15px;text-align:center;font-weight:700}
+#pinbox .sw2{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+td.cell{border:2px solid transparent;background-clip:padding-box;border-radius:4px;min-width:76px}
+td.cell .sb{margin:3px auto 0}
+th[data-k]{cursor:pointer}
+th[data-k]:hover,th.act{background:#d6d6d6}
+th.act::after{content:" ▼";font-size:10px}
+.sb{display:flex;gap:2px;width:max-content;margin:3px 0 0 auto}
+.sb i{flex:none;height:5px;border-radius:2px;background:#9ca3af;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.sb i.p{background:#facc15}
+.sb i.f{background:#4ade80}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.un{color:#888;font-style:italic}
+.rk{display:inline-block;min-width:28px;padding:1px 6px;border-radius:10px;text-align:center;color:#1c1e24;font-weight:700;font-style:normal}
+#feed{position:sticky;top:12px;max-height:85vh;overflow:auto;border:1px solid #ddd;border-radius:5px;background:#fff}
+#feed h3{margin:0;padding:10px 12px;font-size:16px;text-align:center;background:#e2e2e2;position:sticky;top:0;z-index:1}
+#subs{list-style:none;margin:0;padding:0}
+#subs li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 12px;cursor:pointer}
+#subs li:nth-child(even){background:#f4f4f4}
+#subs li:hover{background:#e8eef6}
+#subs .pn{font-weight:700;display:block}
+#subs .who{display:block;color:#777;font-size:12px}
+#subs .empty{color:#888;cursor:default}
+#subs .rt{display:flex;flex-direction:column;align-items:flex-end}
+#subs .sc{padding:1px 8px;border-radius:4px;min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:block;overflow-y:auto;overscroll-behavior:contain;padding:0 16px;z-index:10}
+.modal[hidden]{display:none}
+.card{background:#fff;max-width:1150px;width:100%;margin:0 auto 56px;padding:18px 28px 30px;position:relative;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.card h2{margin:0;text-align:center;font-size:32px;font-weight:400;color:#000}
+.meta{text-align:center;color:#666;font-size:14px;margin-bottom:6px}
+#close{position:absolute;top:6px;right:12px;border:0;background:none;color:#888;font-size:30px;line-height:1;cursor:pointer}
+svg{width:100%;height:auto;display:block}
+svg text{fill:#222;font-size:11px}
+.grid{stroke:#ddd;stroke-width:1}
+.plotbox{fill:none;stroke:#ddd}
+.cursor{stroke:#d2d2d2;stroke-width:2}
+circle.dot{fill:#fff;stroke:var(--score);stroke-width:2;cursor:pointer}
+circle.dot:hover,circle.dot.on{fill:var(--score)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:12px;color:#555;margin-top:2px}
+.pick{min-height:2.6em;margin-top:6px;text-align:center;font-size:14px}
+.tip{font-size:13px;color:#666;text-align:center;min-height:2.8em;margin-top:6px}
+.ptwrap{overflow-x:auto;margin-top:14px}
+.ptable{border-collapse:separate;border-spacing:2px;width:100%}
+.ptable th{background:#ddd;border:0;border-radius:0;height:auto;font-weight:400;font-size:16px;padding:5px 8px}
+.ptable td{padding:5px 8px;font-size:16px}
+.ptable tbody tr{cursor:default}
+.ptable tbody tr:nth-child(odd){background:#f6f6f6}
+.ptable tbody tr:nth-child(even){background:#ebebeb}
+.ptable tr.hl td{outline:2px solid var(--score);outline-offset:-2px}
+.ptable .z{color:#999}
+.ptable th.stc{font-size:13px}
+.ptable .sb{margin:3px auto 0}
+#tl{min-width:4.6em;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:#66b36d;text-align:left}
+.ctl{display:flex;gap:4px;align-items:center}
+.ctl button{padding:6px 10px;font:inherit;font-size:14px;border:1px solid #bbb;border-radius:4px;background:#fff;color:#333;cursor:pointer}
+.ctl button:hover{background:#f0f0f0}
+.ctl button.on{background:#4f9f55;border-color:#4f9f55;color:#fff}
+#play{width:42px;font-size:16px;padding:4px 0}
+.vsel{border-collapse:separate;border-spacing:0 2px;width:100%;margin:8px 0 4px}
+.vsel td{padding:5px 10px;font-size:16px;background:#f2f2f2}
+.vsel tr.top td{background:#ebebeb}
+.vsel tr.cur td{background:#dfe6f3;font-weight:700}
+.vsel td.nm{text-align:left}
+.vsel tr.sub td.nm{padding-left:32px}
+.vsel td.n{width:120px;text-align:left}
+.vsel td.b{width:110px;text-align:right}
+.vsel button{width:96px;padding:4px 0;font:inherit;font-size:15px;border:1px solid #adadad;border-radius:4px;background:#f4f4f4;cursor:pointer}
+.vsel button:hover{background:#e6e6e6}
+.vsel tr.cur button{background:#6a6af4;border-color:#6a6af4;color:#fff}
+.topbar #home{color:#2a5db0;text-decoration:none;font-size:14px;white-space:nowrap}
+.topbar #home:hover{text-decoration:underline}
+.topbar #ctitle{font-size:16px;color:#222}
+.topbar #clogo{height:28px;width:auto}
+.topbar label.chk{flex:none;min-width:0;gap:6px;cursor:pointer;white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a id="home" href="../../" title="All contests">&larr; Contests</a>
+  <img id="clogo" alt="" hidden>
+  <strong id="ctitle"></strong>
+  <input type="search" id="q" placeholder="Search name or country">
+  <label class="chk"><input type="checkbox" id="uo" checked> Show unofficial</label>
+  <label class="chk"><input type="checkbox" id="so"> Show selected only</label>
+  <span class="ctl"><button id="play" type="button" title="Play / pause">▶</button><span class="ctl" id="spd"></span></span>
+  <label>Time <input type="range" id="t" min="0" max="1" step="1" value="1"><span id="tl"></span></label>
+</header>
+<div class="page">
+  <section>
+    <div id="sub"></div>
+    <div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
+    <div id="pinbox" hidden><h3>Selected contestants: total score over time</h3><svg id="pinchart" viewBox="0 0 960 290" role="img" aria-label="Total score over time of the selected contestants"></svg><div class="legend" id="pinleg"></div><div class="tip" id="pintip"></div></div>
+  </section>
+  <aside id="feed"><h3>Submissions</h3><ul id="subs"></ul></aside>
+</div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dname" hidden>
+    <div class="card">
+      <button id="close" aria-label="Close">×</button>
+      <h2 id="dname"></h2>
+      <div class="meta" id="dmeta"></div>
+      <table class="vsel" id="vsel"><tbody></tbody></table>
+      <svg id="chart" viewBox="0 0 960 520" role="img" aria-label="Score and rank over time"></svg>
+      <div class="legend" id="legend"></div>
+      <div class="tip" id="tip"></div>
+      <div class="ptwrap"><table class="ptable"><thead id="pth"><tr><th>Time</th><th>Problem</th><th>Cumulative score</th></tr></thead><tbody id="ptb"></tbody></table></div>
+    </div>
+  </div>
+
+
+<script>
+const $ = id => document.getElementById(id);
+let D, T, S, R, W, maxTotal, sel = null, PROWS = [], timeIdx = 0, FEED = [], sortK = null, showUnoff = true, OFF = [], NOFF = 0, CNT = [], CUT = [], view = null, ST = [], RT = [], WT = [], CUTT = [], CH = null, PIN = new Set(), playing = false, playT = 0, lastTs = 0, raf = 0, SPEED = 1;
+let HM = new Set(), CHG = new Map(), LASTR = new Map(), SO = false, CHST = null, chartRaf = 0;
+const MC = ['#d4af37', '#a8b0ba', '#b87333'], MN = ['Gold', 'Silver', 'Bronze'];
+
+const DATA = __DATA_JSON__;
+
+function init(d) {
+  D = d;
+  document.title = d.title;
+  $('ctitle').textContent = d.title;
+  if (d.logo) { const lg = $('clogo'); lg.onerror = () => { lg.hidden = true; }; lg.src = d.logo; lg.hidden = false; }
+  if (location.protocol === 'file:') $('home').style.display = 'none';
+  // Tasks without subtasks are treated as a single subtask worth the task's max.
+  d.tasks.forEach(t => {
+    if (!t.subtasks) t.subtasks = [{ max: t.max }];
+    t.max = sum(t.subtasks.map(s => s.max));
+  });
+  // Submissions are [minute, taskIndex, score | [subtaskScores]]; sort and normalise to arrays.
+  d.users.forEach(u => {
+    u.subs = u.subs.map(([t, k, s]) => [t, k, Array.isArray(s) ? s : [s]]).sort((a, b) => a[0] - b[0]);
+  });
+  maxTotal = sum(d.tasks.map(t => t.max));
+  // Flat, time-ordered list of every submission for the live feed.
+  FEED = d.users.flatMap((u, i) => u.subs.map(([t, k, arr], n) => ({ t, i, k, arr, n, score: sum(arr) })))
+    .sort((a, b) => a.t - b.t);
+
+  // Timeline: every submission time, plus start and end.
+  const ts = new Set([0, d.duration]);
+  d.users.forEach(u => u.subs.forEach(s => ts.add(s[0])));
+  T = [...ts].sort((a, b) => a - b);
+
+  // S[u][i] = total of best-per-task at time T[i]
+  S = d.users.map(u => T.map(t => sum(stateAt(u, t).best.flat())));
+
+  // R = rank (1 + strictly ahead), W = worst rank (everyone tied or ahead, including you)
+  // Official / unofficial split and medal cutoffs (set in data.json).
+  const unoff = new Set(d.unofficial || []);
+  OFF = d.users.map(u => !(u.unofficial || unoff.has(u.name)));
+  NOFF = OFF.filter(Boolean).length;
+  let g, sv, br;
+  if (d.medals) { g = d.medals.gold | 0; sv = d.medals.silver | 0; br = d.medals.bronze | 0; }
+  else { g = Math.ceil(NOFF / 12); sv = Math.ceil(NOFF / 4) - g; br = Math.ceil(NOFF / 2) - g - sv; }
+  CNT = [g, g + sv, g + sv + br].map(c => Math.min(c, NOFF));
+  // Cutoff over time = score of the last official who would hold that medal at that moment.
+  CUT = [0, 1, 2].map(m => T.map((_, i) => {
+    if (CNT[m] <= 0) return null;
+    const sc = d.users.map((_, u) => OFF[u] ? S[u][i] : -1).filter(v => v >= 0).sort((a, b) => b - a);
+    return sc[CNT[m] - 1];
+  }));
+
+  // Ranks count official contestants only; unofficial ones get the rank they would have had.
+  const n = d.users.length;
+  R = S.map(() => new Array(T.length));
+  W = S.map(() => new Array(T.length));
+  for (let i = 0; i < T.length; i++) {
+    for (let a = 0; a < n; a++) {
+      let gt = 0, ge = 0;
+      for (let b = 0; b < n; b++) {
+        if (!OFF[b]) continue;
+        if (S[b][i] > S[a][i]) gt++;
+        if (S[b][i] >= S[a][i]) ge++;
+      }
+      R[a][i] = gt + 1; W[a][i] = ge + (OFF[a] ? 0 : 1);
+    }
+  }
+
+  // Per-problem score / rank series (same rules as the overall ones, restricted to one task).
+  ST = d.tasks.map(() => d.users.map(() => new Array(T.length).fill(0)));
+  d.users.forEach((u, a) => T.forEach((t, i) => {
+    const { best } = stateAt(u, t);
+    best.forEach((b, k) => { ST[k][a][i] = sum(b); });
+  }));
+  // Per-problem medal cutoffs: score of the last official who would hold that medal on that problem.
+  CUTT = d.tasks.map((_, k) => [0, 1, 2].map(m => T.map((_, i) => {
+    if (CNT[m] <= 0) return null;
+    const sc = d.users.map((_, u) => OFF[u] ? ST[k][u][i] : -1).filter(v => v >= 0).sort((a, b) => b - a);
+    return sc[CNT[m] - 1];
+  })));
+  RT = d.tasks.map(() => d.users.map(() => new Array(T.length)));
+  WT = d.tasks.map(() => d.users.map(() => new Array(T.length)));
+  d.tasks.forEach((_, k) => {
+    for (let i = 0; i < T.length; i++) {
+      for (let a = 0; a < n; a++) {
+        let gt = 0, ge = 0;
+        for (let b = 0; b < n; b++) {
+          if (!OFF[b]) continue;
+          const x = ST[k][b][i], y = ST[k][a][i];
+          if (x > y) gt++;
+          if (x >= y) ge++;
+        }
+        RT[k][a][i] = gt + 1; WT[k][a][i] = ge + (OFF[a] ? 0 : 1);
+      }
+    }
+  });
+
+  const slider = $('t');
+  slider.max = T.length - 1;
+  slider.value = timeIdx = T.length - 1;
+  slider.oninput = () => { timeIdx = +slider.value; pause(); renderTable(); };
+  $('play').onclick = togglePlay;
+  $('spd').innerHTML = SPEEDS.map(v => `<button type="button" data-s="${v}" class="${v === SPEED ? 'on' : ''}">x${v}</button>`).join('');
+  $('spd').querySelectorAll('button').forEach(b => b.onclick = () => {
+    SPEED = +b.dataset.s;
+    $('spd').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  });
+  $('q').oninput = renderTable;
+  $('q').placeholder = 'Search name or ' + (d.teamLabel || 'country').toLowerCase();
+  $('so').onchange = () => { SO = $('so').checked; renderTable(); };
+  $('pinchart').onmousemove = pinMove;
+  setupChartHover();
+  if (NOFF === d.users.length) $('uo').parentElement.style.display = 'none';
+  $('uo').onchange = () => { showUnoff = $('uo').checked; renderTable(); if (sel !== null) drawChart(sel); };
+  $('close').onclick = closeModal;
+  $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && sel !== null) closeModal(); });
+
+  $('head').innerHTML = '<tr><th>#</th><th>Name</th><th>' + esc(d.teamLabel || 'Country') + '</th>' +
+    d.tasks.map((t, k) => `<th data-k="${k}" tabindex="0" title="Sort by ${esc(t.name)}">${LT(k)}</th>`).join('') +
+    '<th data-k="" tabindex="0" title="Sort by total">Total</th></tr>';
+  document.querySelectorAll('#head th[data-k]').forEach(th => {
+    const go = () => { sortK = th.dataset.k === '' ? null : +th.dataset.k; renderTable(); };
+    th.onclick = go;
+    th.onkeydown = e => { if (e.key === 'Enter') go(); };
+  });
+  renderTable();
+
+}
+
+const LT = k => String.fromCharCode(65 + k % 26);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT = m => {
+  const s = Math.floor(m * 60 + 0.01);
+  return Math.floor(s / 3600) + ':' + String(Math.floor(s / 60) % 60).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+};
+// Time label: darker green at the end of the contest, lighter green at any other time.
+function setTl(t) {
+  const el = $('tl');
+  el.textContent = fmtT(t);
+  el.style.color = t >= D.duration ? '#2e7d32' : '#66b36d';
+}
+// Playback: x1 = 1 contest minute per real second.
+const SPEEDS = [1, 2, 4, 8, 16];
+function pause() {
+  playing = false;
+  cancelAnimationFrame(raf);
+  playT = T[timeIdx];
+  $('play').textContent = '▶';
+  setTl(playT);
+}
+function frame(ts) {
+  if (!playing) return;
+  playT = Math.min(D.duration, playT + (ts - lastTs) / 1000 * SPEED);
+  lastTs = ts;
+  let i = timeIdx;
+  while (i + 1 < T.length && T[i + 1] <= playT) i++;
+  if (i !== timeIdx) { timeIdx = i; $('t').value = i; renderTable(); }
+  else setTl(playT);
+  if (playT >= D.duration) { timeIdx = T.length - 1; $('t').value = timeIdx; renderTable(); pause(); return; }
+  raf = requestAnimationFrame(frame);
+}
+function togglePlay() {
+  if (playing) { pause(); return; }
+  if (timeIdx >= T.length - 1) { timeIdx = 0; $('t').value = 0; renderTable(); }
+  playT = T[timeIdx];
+  playing = true;
+  $('play').textContent = '⏸';
+  lastTs = performance.now();
+  raf = requestAnimationFrame(frame);
+}
+
+// Best score per subtask (IOI rule) and number of submissions made by time t.
+function stateAt(u, t) {
+  const best = D.tasks.map(tk => tk.subtasks.map(() => 0));
+  let n = 0;
+  for (const [st, k, arr] of u.subs) {
+    if (st > t) break;
+    n++;
+    arr.forEach((v, j) => { if (v > best[k][j]) best[k][j] = v; });
+  }
+  return { best, n };
+}
+
+// White (no points) to dark green (full score) background for any score.
+const GREEN = '#7fbf83';
+function scoreStyle(v, max) {
+  const p = max > 0 ? Math.max(0, Math.min(100, Math.round(v / max * 100))) : 0;
+  return `background:color-mix(in srgb, ${GREEN} ${p}%, var(--bg));color:${v <= 0 ? '#9a9a9a' : '#333'}`;
+}
+// Line of subtask segments: grey = none, yellow = partial, green = full; length follows subtask size.
+function barsHtml(tk, vals) {
+  return '<div class="sb">' + tk.subtasks.map((s, j) => {
+    const v = vals[j] || 0, c = v <= 0 ? '' : v >= s.max ? 'f' : 'p';
+    return `<i class="${c}" style="width:${Math.max(3, s.max * 0.7)}px" title="Subtask ${j}: ${fmt(v)}/${fmt(s.max)}"></i>`;
+  }).join('') + '</div>';
+}
+
+const r2 = v => Math.round(v * 100) / 100;
+const sum = a => r2(a.reduce((x, v) => x + v, 0));
+const fmt = v => String(r2(v));
+const rankTxt = (r, w, off) => off ? '' + r : '(' + r + ')';
+
+// Team info (name + optional flag image) for a contestant; D.teams is keyed by u.team.
+const teamKey = u => u.team != null ? 'T' + u.team : 'C' + u.country;
+const teamInfo = u => (D.teams && u.team != null && D.teams[u.team]) || null;
+const hay = u => (u.name + ' ' + u.country + ' ' + ((teamInfo(u) || {}).name || '')).toLowerCase();
+const flagSrc = u => { const t = teamInfo(u); return t && t.flag && (D.teamShow || 'image') !== 'text' ? t.flag : null; };
+// Flag image instead of text when one exists ('image' mode); 'both' shows the two together; 'text' never uses images.
+function teamHtml(u) {
+  const fl = flagSrc(u), txt = esc(u.country);
+  if (!fl) return txt;
+  const img = `<img class="flag" src="${esc(fl)}" alt="${txt}" title="${esc((teamInfo(u) || {}).name || u.country)}" loading="lazy" onerror="this.replaceWith(document.createTextNode(this.alt))">`;
+  return D.teamShow === 'both' ? img + ' ' + txt : img;
+}
+
+function medalAt(u, i) {
+  const s = S[u][i];
+  if (s <= 0) return -1;
+  for (let m = 0; m < 3; m++) if (CUT[m][i] != null && s >= CUT[m][i]) return m;
+  return -1;
+}
+// Honourable mention: the top non-zero, non-medal scorer of each school (official and unofficial together).
+const HMC = '#b69be0', AWC = [...MC, HMC], AWN = [...MN, 'Honourable mention'];
+function hmFor(i) {
+  const best = new Map();
+  D.users.forEach((u, a) => {
+    const v = S[a][i];
+    if (v <= 0 || medalAt(a, i) >= 0) return;
+    const k = teamKey(u), b = best.get(k);
+    if (!b || v > b.v) best.set(k, { v, us: [a] }); else if (v === b.v) b.us.push(a);
+  });
+  const set = new Set();
+  best.forEach(b => b.us.forEach(a => set.add(a)));
+  return set;
+}
+const awardAt = (u, i, hm) => { const m = medalAt(u, i); return m >= 0 ? m : hm.has(u) ? 3 : -1; };
+
+// Rank cell: filled with the medal / honourable-mention colour, plus a small arrow when the rank just changed.
+function rankCell(u, i) {
+  const a = awardAt(u, i, HM), r = R[u][i], ch = CHG.get(u);
+  let arrow = '';
+  if (ch) {
+    const el = performance.now() - ch.at;
+    if (el < 4000) arrow = `<span class="chg ${ch.d > 0 ? 'up' : 'dn'}" style="animation-delay:-${Math.round(el)}ms" title="${ch.d > 0 ? 'Up' : 'Down'} ${Math.abs(ch.d)}">${ch.d > 0 ? '▲' : '▼'}${Math.abs(ch.d)}</span>`;
+  }
+  return `<td class="rank ${OFF[u] ? '' : 'un'}"${a >= 0 ? ` style="background:${AWC[a]}"` : ''} title="${a >= 0 ? AWN[a] + ' · ' : ''}Click to select this row">${OFF[u] ? r : '(' + r + ')'}${arrow}</td>`;
+}
+
+// Only submissions from contestants currently shown in the scoreboard are listed.
+function renderFeed(t, q) {
+  const all = [];
+  for (const s of FEED) {
+    if (s.t > t) break;
+    const u = D.users[s.i];
+    if (!showUnoff && !OFF[s.i]) continue;
+    if (SO && !PIN.has(s.i)) continue;
+    if (!q || hay(u).includes(q)) all.push(s);
+  }
+  const items = all.slice(-60).reverse();
+  $('feed').querySelector('h3').textContent = q ? 'Submissions (filtered)' : 'Submissions';
+  $('subs').innerHTML = items.length ? items.map(s => {
+    const tk = D.tasks[s.k];
+    return `<li data-i="${s.i}" data-n="${s.n}"><div><span class="pn" title="${esc(tk.name)}">${LT(s.k)}</span><span class="who">${esc(D.users[s.i].name)}${OFF[s.i] ? '' : '*'} · ${fmtT(s.t)}</span></div>` +
+      `<div class="rt"><span class="sc">${fmt(s.score)}</span>${barsHtml(tk, s.arr)}</div></li>`;
+  }).join('') : '<li class="empty">No submissions yet.</li>';
+  // Clicking a submission opens that person's profile with this submission highlighted.
+  document.querySelectorAll('#subs li[data-i]').forEach(li => li.onclick = () => openUser(+li.dataset.i, +li.dataset.n));
+}
+
+const ANI = new Map();   // user index -> {from, start, dur}: slide in progress (offset in px from layout position)
+let animRaf = 0;
+const ease = p => 1 - Math.pow(1 - p, 3);
+const slideP = (an, now) => Math.min(1, Math.max(0, (now - an.start) / an.dur));
+function tick(now) {
+  animRaf = 0;
+  document.querySelectorAll('#body tr').forEach(tr => {
+    const i = +tr.dataset.i, an = ANI.get(i);
+    if (!an) return;
+    const p = slideP(an, now);
+    if (p >= 1) { ANI.delete(i); tr.style.transform = ''; }
+    else tr.style.transform = `translateY(${an.from * (1 - ease(p))}px)`;
+  });
+  if (ANI.size) animRaf = requestAnimationFrame(tick);
+}
+
+function renderTable() {
+  // Where each row visually is right now (layout position + any slide still in progress),
+  // so a new slide always continues from there instead of snapping back to its start.
+  const now = performance.now(), prevVis = new Map(), prevLay = new Map(), prevAni = new Map(ANI);
+  document.querySelectorAll('#body tr[data-i]').forEach(tr => {
+    const i = +tr.dataset.i, an = ANI.get(i);
+    prevLay.set(i, tr.offsetTop);
+    prevVis.set(i, tr.offsetTop + (an ? an.from * (1 - ease(slideP(an, now))) : 0));
+  });
+  const t = T[timeIdx], q = $('q').value.trim().toLowerCase();
+  // Remember rank changes since the previous render (shown as an arrow for a few seconds).
+  D.users.forEach((_, a) => {
+    const r = R[a][timeIdx], p = LASTR.get(a);
+    if (p !== undefined && p !== r) CHG.set(a, { d: p - r, at: now });
+    LASTR.set(a, r);
+  });
+  HM = hmFor(timeIdx);
+  setTl(playing ? playT : t);
+  renderFeed(t, q);
+  document.querySelectorAll('#head th[data-k]').forEach(th =>
+    th.classList.toggle('act', (th.dataset.k === '' ? null : +th.dataset.k) === sortK));
+  // Sort by the chosen problem's score (descending), then by total, then by name.
+  const rows = D.users.map((u, i) => ({ u, i }));
+  const key = sortK === null ? null
+    : new Map(rows.map(r => [r.i, sum(stateAt(r.u, t).best[sortK])]));
+  rows.sort((a, b) => (key ? key.get(b.i) - key.get(a.i) : 0) ||
+    S[b.i][timeIdx] - S[a.i][timeIdx] || a.u.name.localeCompare(b.u.name));
+  const html = rows
+    .filter(({ u, i }) => (showUnoff || OFF[i]) && (!SO || PIN.has(i)) && (!q || hay(u).includes(q)))
+    .map(({ u, i }) => {
+      const { best } = stateAt(u, t);
+      const cells = D.tasks.map((tk, k) => {
+        const total = sum(best[k]);
+        return `<td class="cell" style="${scoreStyle(total, tk.max)}"><div>${fmt(total)}</div>${barsHtml(tk, best[k])}</td>`;
+      }).join('');
+      return `<tr tabindex="0" data-i="${i}" class="${i === sel ? 'sel' : ''}${PIN.has(i) ? ' pin' : ''}">` +
+        rankCell(i, timeIdx) +
+        `<td>${esc(u.name)}${OFF[i] ? '' : '*'}</td><td>${teamHtml(u)}</td>` +
+        cells + `<td class="tot cell" style="${scoreStyle(S[i][timeIdx], maxTotal)}">${fmt(S[i][timeIdx])}</td></tr>`;
+    }).join('');
+  $('body').innerHTML = html || `<tr class="none"><td colspan="${D.tasks.length + 4}" style="color:#888;padding:18px">${SO && !PIN.size ? 'Nobody selected yet: click a rank (#) to select a row.' : 'No contestants match.'}</td></tr>`;
+  document.querySelectorAll('#body tr[data-i]').forEach(tr => {
+    const i = +tr.dataset.i;
+    tr.onclick = () => openUser(i);
+    tr.onkeydown = e => { if (e.key === 'Enter') openUser(i); };
+    // Clicking the rank (#) cell selects / deselects the row instead of opening the popup.
+    tr.querySelector('td.rank').onclick = e => {
+      e.stopPropagation();
+      if (PIN.has(i)) PIN.delete(i); else PIN.add(i);
+      if (SO) renderTable();
+      else { tr.classList.toggle('pin', PIN.has(i)); renderPinChart(); }
+    };
+  });
+  const ms = playing ? Math.max(150, 500 / SPEED) : 500;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ANI.clear();
+  document.querySelectorAll('#body tr[data-i]').forEach(tr => {
+    const i = +tr.dataset.i;
+    if (reduce || !prevVis.has(i)) return;
+    const top = tr.offsetTop, old = prevAni.get(i);
+    let an;
+    if (old && Math.abs(prevLay.get(i) - top) < 0.5) an = old;       // same target: keep gliding
+    else {
+      const off = prevVis.get(i) - top;
+      if (Math.abs(off) < 1) return;
+      an = { from: off, start: now, dur: ms };                        // new target: glide from where it is now
+    }
+    ANI.set(i, an);
+    tr.style.transform = `translateY(${an.from * (1 - ease(slideP(an, now)))}px)`;
+  });
+  if (ANI.size && !animRaf) animRaf = requestAnimationFrame(tick);
+  renderPinChart();
+}
+
+// Total score over time of every selected contestant (no circles), drawn up to the current time.
+const PAL = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#db2777', '#65a30d', '#4b5563', '#ca8a04'];
+function renderPinChart() {
+  const box = $('pinbox'), ids = [...PIN].filter(i => D.users[i]);
+  if (!ids.length) { box.hidden = true; return; }
+  box.hidden = false;
+  const x0 = 50, x1 = 950, top = 15, bot = 250, dur = D.duration, t = T[timeIdx];
+  const X = v => x0 + (x1 - x0) * v / dur, Y = v => bot - (bot - top) * v / maxTotal;
+  let g = `<rect class="plotbox" x="${x0}" y="${top}" width="${x1 - x0}" height="${bot - top}"/>`;
+  for (let k = 0; k <= 4; k++) {
+    const v = maxTotal * k / 4, y = Y(v);
+    g += `<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/><text x="${x0 - 6}" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`;
+  }
+  for (let h = 0; h <= Math.floor(dur / 60); h++) g += `<text x="${X(h * 60)}" y="${bot + 18}" text-anchor="middle">${h}h</text>`;
+  const order = ids.slice().sort((a, b) => S[b][timeIdx] - S[a][timeIdx]);
+  const col = new Map(ids.map((a, c) => [a, PAL[c % PAL.length]]));
+  const lines = ids.map(a => {
+    let d = `M${X(T[0])},${Y(S[a][0])}`;
+    for (let j = 1; j <= timeIdx; j++) d += `H${X(T[j])}V${Y(S[a][j])}`;
+    return `<path d="${d}" fill="none" stroke="${col.get(a)}" stroke-width="2"/>`;
+  }).join('');
+  $('pinchart').innerHTML = g + lines + `<line class="cursor" x1="${X(t)}" x2="${X(t)}" y1="${top}" y2="${bot}"/>`;
+  $('pinleg').innerHTML = order.map(a =>
+    `<span><span class="sw2" style="background:${col.get(a)}"></span>${esc(D.users[a].name)}${OFF[a] ? '' : '*'} (${fmt(S[a][timeIdx])})</span>`).join('');
+  $('pintip').textContent = 'Hover the graph to read values at a given time.';
+}
+function pinMove(e) {
+  const ids = [...PIN]; if (!ids.length) return;
+  const svg = $('pinchart'), pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = 0;
+  const px = pt.matrixTransform(svg.getScreenCTM().inverse()).x;
+  const tt = Math.min(T[timeIdx], Math.max(0, (px - 50) / 900 * D.duration));
+  let i = 0; while (i + 1 < T.length && T[i + 1] <= tt) i++;
+  $('pintip').textContent = fmtT(tt) + ' — ' + ids.map(a => `${D.users[a].name}: ${fmt(S[a][i])}`).join(' · ');
+}
+
+function openUser(i, n) {
+  sel = i;
+  const u = D.users[i], f = T.length - 1;
+  const fl = flagSrc(u);
+  $('dname').innerHTML = (fl ? `<img class="flag" src="${esc(fl)}" alt="" onerror="this.remove()">` : '') + esc(u.name) + (OFF[i] ? '' : '*');
+  const aw = awardAt(i, f, hmFor(f)), rr = R[i][f], ww = W[i][f];
+  const rtxt = '' + rr;
+  $('dmeta').textContent = `${u.country} · final score ${fmt(S[i][f])} · ` +
+    (OFF[i] ? `final rank ${rtxt}` : `unofficial (would rank ${rtxt})`) +
+    (aw >= 0 ? ` · ${AWN[aw]}${aw === 3 ? '' : OFF[i] ? ' medal' : ' level'}` : '');
+  // Leave the top bar (time controls) visible, greyed out by the overlay, above the popup.
+  $('modal').style.paddingTop = document.querySelector('.topbar').offsetHeight + 28 + 'px';
+  $('modal').hidden = false;
+  $('modal').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  $('close').focus();
+  view = null;
+  CHST = null;
+  PROWS = userRows(i, view);
+  renderSel();
+  $('tip').textContent = 'Hover the charts to read values at a given time.';
+  renderRows();
+  drawChart(i);
+  renderTable();
+  if (n != null && !isNaN(n)) pickRow(n);
+}
+
+const TASKC = ['#f8f1b4', '#f6d894', '#b8dff4', '#9ec6e0', '#d9cdf0', '#cfe8c8', '#e3e3e3'];
+
+// One row per submission: its score, the points it added to the total, and the running total.
+function userRows(i, k0 = null) {
+  const best = D.tasks.map(tk => tk.subtasks.map(() => 0));
+  let prev = 0;
+  return D.users[i].subs.filter(s => k0 === null || s[1] === k0).map(([t, k, arr], n) => {
+    const imp = arr.map((v, j) => v > best[k][j]);
+    arr.forEach((v, j) => { if (v > best[k][j]) best[k][j] = v; });
+    const cum = sum(best.flat());
+    const row = { n, t, k, arr, imp, score: sum(arr), added: r2(cum - prev), cum };
+    prev = cum;
+    return row;
+  });
+}
+
+// Overall + per-problem selector (name, score, final rank incl. worst case, Show button).
+function renderSel() {
+  const u = sel, f = T.length - 1;
+  const rk = k => k === null ? rankTxt(R[u][f], W[u][f], OFF[u]) : rankTxt(RT[k][u][f], WT[k][u][f], OFF[u]);
+  const row = (k, name, cls) =>
+    `<tr class="${cls}${view === k ? ' cur' : ''}"><td class="nm">${esc(name)}</td><td class="n">${fmt(k === null ? S[u][f] : ST[k][u][f])}</td><td class="n">${rk(k)}</td>` +
+    `<td class="b"><button data-v="${k === null ? '' : k}">Show</button></td></tr>`;
+  $('vsel').querySelector('tbody').innerHTML = row(null, D.title, 'top') +
+    D.tasks.map((tk, k) => row(k, tk.name, 'sub')).join('');
+  $('vsel').querySelectorAll('button').forEach(b => b.onclick = () => setView(b.dataset.v === '' ? null : +b.dataset.v));
+}
+
+function setView(k) {
+  view = k;
+  PROWS = userRows(sel, view);
+  $('tip').textContent = 'Hover the charts to read values at a given time.';
+  renderSel();
+  renderRows();
+  drawChart(sel, true);
+}
+
+// Submissions table. In a problem view every subtask gets a column: the header shows the best score
+// over all of the person's submissions, each row shows that submission's score on the subtask.
+function renderRows() {
+  const tkv = view === null ? null : D.tasks[view];
+  const bestS = tkv ? tkv.subtasks.map((_, j) => PROWS.reduce((m, r) => Math.max(m, r.arr[j] || 0), 0)) : [];
+  $('pth').innerHTML = '<tr><th>Time</th><th>Problem</th>' +
+    (tkv ? tkv.subtasks.map((st, j) => `<th class="stc">Subtask ${j} (${fmt(bestS[j])}/${fmt(st.max)})</th>`).join('') : '') +
+    '<th>Cumulative score</th></tr>';
+  $('ptb').innerHTML = PROWS.map(r => {
+    const tk = D.tasks[r.k];
+    const sc = tkv ? tkv.subtasks.map((st, j) => {
+      const v = r.arr[j] || 0;
+      return `<td style="${scoreStyle(v, st.max)}${r.imp[j] ? ';font-weight:700' : ''}">${fmt(v)}</td>`;
+    }).join('') : '';
+    return `<tr data-n="${r.n}"><td>${fmtT(r.t)}</td>` +
+      `<td style="background:${TASKC[r.k % TASKC.length]}">${esc(tk.name)} (${LT(r.k)})</td>${sc}` +
+      `<td style="${scoreStyle(r.cum, view === null ? maxTotal : tkv.max)}">${fmt(r.cum)}</td></tr>`;
+  }).join('');
+  document.querySelectorAll('#ptb tr').forEach(tr => tr.onclick = () => pickRow(+tr.dataset.n));
+}
+
+function pickRow(n) {
+  const r = PROWS[n];
+  if (!r) return;
+  const tk = D.tasks[r.k];
+  document.querySelectorAll('#chart .tmp').forEach(c => c.remove());
+  document.querySelectorAll('#chart .dot').forEach(c => c.classList.toggle('on', +c.dataset.n === n));
+  // Submissions that added no points have no permanent circle: draw one for the picked row.
+  if (CH && !document.querySelector(`#chart .dot[data-n="${n}"]`)) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('class', 'dot on tmp');
+    c.setAttribute('cx', CH.X(r.t)); c.setAttribute('cy', CH.YS(r.cum)); c.setAttribute('r', 6);
+    c.dataset.n = n;
+    c.onclick = () => pickRow(n);
+    const ti = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    ti.textContent = tk.name + ': no new points';
+    c.appendChild(ti);
+    $('chart').appendChild(c);
+  }
+  document.querySelectorAll('#ptb tr').forEach(tr => tr.classList.toggle('hl', +tr.dataset.n === n));
+  const tr = document.querySelector(`#ptb tr[data-n="${n}"]`);
+  if (tr) tr.scrollIntoView({ block: 'nearest' });
+}
+
+function closeModal() {
+  sel = null;
+  $('modal').hidden = true;
+  document.body.style.overflow = '';
+  renderTable();
+}
+
+// ---- score / rank chart: one state per view, morphed smoothly when switching problems ----
+const CG = { x0: 50, x1: 950, sTop: 20, sBot: 230, rTop: 260, rBot: 490 };
+const CX = t => CG.x0 + (CG.x1 - CG.x0) * t / D.duration;
+function chartState(u, v) {
+  const all = v === null;
+  return { u, SS: all ? S : ST[v], RR: all ? R : RT[v], WW: all ? W : WT[v],
+    maxV: all ? maxTotal : D.tasks[v].max, CC: all ? CUT : CUTT[v], n: Math.max(NOFF + (OFF[u] ? 0 : 1), 2) };
+}
+function chartPix(st) {
+  const { sTop, sBot, rTop, rBot } = CG, u = st.u;
+  const YS = x => sBot - (sBot - sTop) * x / st.maxV;
+  const YR = r => rTop + (rBot - rTop) * Math.min(1, Math.max(r - 1, 0) / Math.max(st.n - 1, 1));
+  return { YS, YR, s: st.SS[u].map(YS), r: st.RR[u].map(YR), w: st.WW[u].map(YR),
+    cut: st.CC.map(a => a.map(x => x == null ? 0 : YS(x))) };
+}
+const stepPath = ys => { let d = `M${CX(T[0])},${ys[0]}`; for (let i = 1; i < T.length; i++) d += `H${CX(T[i])}V${ys[i]}`; return d; };
+function gridSvg(st, px, op) {
+  const { x0, x1 } = CG;
+  const rankCut = m => Math.ceil(NOFF / [12, 4, 2][m]);
+  let g = `<g opacity="${op}">`;
+  for (let k = 0; k <= 4; k++) {
+    const v = st.maxV * k / 4, y = px.YS(v);
+    g += `<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/><text x="${x0 - 6}" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`;
+  }
+  // Rank axis: 1, the medal ranks (N/12, N/4, N/2 of the official field) and the last rank.
+  for (const r of new Set([1, rankCut(0), rankCut(1), rankCut(2), st.n])) {
+    const y = px.YR(r);
+    g += `<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/><text x="${x0 - 6}" y="${y + 4}" text-anchor="end">${r}</text>`;
+  }
+  return g + '</g>';
+}
+// Draw the chart at progress p between state a and state b (p = 1 draws b alone, with circles).
+function paintChart(a, b, p) {
+  const { x0, x1, sTop, sBot, rTop, rBot } = CG, u = b.u, dur = D.duration;
+  const same = a === b || p >= 1;
+  const pa = chartPix(a), pb = chartPix(b);
+  const mix = (xs, ys) => same ? ys : xs.map((x, i) => x + (ys[i] - x) * p);
+  const sY = mix(pa.s, pb.s), rY = mix(pa.r, pb.r), wY = mix(pa.w, pb.w);
+  let band = `M${CX(T[0])},${rY[0]}`;
+  for (let i = 1; i < T.length; i++) band += `H${CX(T[i])}V${rY[i]}`;
+  for (let i = T.length - 1; i >= 0; i--) { band += `V${wY[i]}`; if (i > 0) band += `H${CX(T[i - 1])}`; }
+  band += 'Z';
+  let g = `<rect class="plotbox" x="${x0}" y="${sTop}" width="${x1 - x0}" height="${sBot - sTop}"/><rect class="plotbox" x="${x0}" y="${rTop}" width="${x1 - x0}" height="${rBot - rTop}"/>`;
+  g += gridSvg(b, pb, same ? 1 : p);
+  if (!same) g += gridSvg(a, pa, 1 - p);
+  for (let h = 0; h <= Math.floor(dur / 60); h++) g += `<text x="${CX(h * 60)}" y="${rBot + 18}" text-anchor="middle">${h}h</text>`;
+  g += `<text x="${x0 + 4}" y="${sTop - 6}">Score</text><text x="${x0 + 4}" y="${rTop - 6}">Rank</text>`;
+  const cut = (px, m, op) => `<path d="${stepPath(px.cut[m])}" fill="none" stroke="${MC[m]}" stroke-width="1.5" stroke-dasharray="5 3" opacity="${op}"/>`;
+  const cutLines = [0, 1, 2].map(m => CNT[m] > 0 ? cut(pb, m, same ? 1 : p) + (same ? '' : cut(pa, m, 1 - p)) : '').join('');
+  $('chart').innerHTML = g + cutLines +
+    `<path d="${stepPath(sY)}" fill="none" stroke="var(--score)" stroke-width="2"/>` +
+    `<path d="${band}" fill="var(--band)"/>` +
+    `<path d="${stepPath(rY)}" fill="none" stroke="var(--rank)" stroke-width="2"/>` +
+    `<line class="cursor" id="cur" y1="${sTop}" y2="${rBot}" style="display:none"/>` +
+    (same ? PROWS.filter(r => r.added > 0).map(r =>
+      `<circle class="dot" data-n="${r.n}" cx="${CX(r.t)}" cy="${pb.YS(r.cum)}" r="6"><title>${esc(D.tasks[r.k].name)}: +${fmt(r.added)}</title></circle>`).join('') : '');
+  if (same) $('chart').querySelectorAll('.dot').forEach(c => c.onclick = () => pickRow(+c.dataset.n));
+}
+function drawChart(u, animate) {
+  const b = chartState(u, view), prev = CHST;
+  cancelAnimationFrame(chartRaf);
+  CHST = { u, st: b };
+  CH = { X: CX, YS: chartPix(b).YS };
+  $('legend').innerHTML = MN.map((nm, m) => CNT[m] > 0
+    ? `<span><span style="display:inline-block;width:18px;border-top:2px dashed ${MC[m]};vertical-align:middle;margin-right:6px"></span>${nm} score cutoff</span>` : '').join('');
+  if (!animate || !prev || prev.u !== u || matchMedia('(prefers-reduced-motion: reduce)').matches) { paintChart(b, b, 1); return; }
+  const a = prev.st, start = performance.now(), len = 450;
+  const stepf = now => {
+    const p = Math.min(1, (now - start) / len);
+    if (p >= 1) { paintChart(b, b, 1); return; }
+    paintChart(a, b, ease(p));
+    chartRaf = requestAnimationFrame(stepf);
+  };
+  chartRaf = requestAnimationFrame(stepf);
+}
+function setupChartHover() {
+  const svg = $('chart');
+  const move = e => {
+    const cur = $('cur');
+    if (!CHST || !cur) return;
+    const { u, st } = CHST, { x0, x1 } = CG, dur = D.duration;
+    const pt = svg.createSVGPoint();
+    pt.x = e.touches ? e.touches[0].clientX : e.clientX; pt.y = 0;
+    const px = pt.matrixTransform(svg.getScreenCTM().inverse()).x;
+    if (px < x0 || px > x1) { cur.style.display = 'none'; return; }
+    const t = Math.min(dur, Math.max(0, (px - x0) / (x1 - x0) * dur));
+    let i = 0; while (i + 1 < T.length && T[i + 1] <= t) i++;
+    cur.setAttribute('x1', CX(t)); cur.setAttribute('x2', CX(t)); cur.style.display = '';
+    $('tip').textContent = `${fmtT(t)} — score ${fmt(st.SS[u][i])}, rank ${st.RR[u][i]}`;
+  };
+  svg.onmousemove = move; svg.ontouchmove = move; svg.ontouchstart = move;
+  svg.onmouseleave = () => { const cur = $('cur'); if (cur) cur.style.display = 'none'; };
+}
+init(DATA);
+</script>
+</body>
+</html>
