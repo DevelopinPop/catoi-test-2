@@ -1,35 +1,30 @@
-# Contest scoreboards on GitHub Pages
+# Contest scoreboards
 
-Drop scraped scoreboards into **`scoreboards/`**. A GitHub Action builds the website and publishes it,
-no other step needed.
+A static website (GitHub Pages) with one scoreboard per contest.
 
 ```
-scoreboards/            <- you put the scraped scoreboards here (one folder per contest)
-    my-contest/data.json     (+ flags/, logo.png, meta.json from the notebook)
-tools/
-    viewer.html         the scoreboard page (shared by all contests, edit it to restyle everything)
-    home.html           the contest list on the front page
-    build_site.py       turns scoreboards/ into the website (plain Python, nothing to install)
-.github/workflows/pages.yml   runs the build and deploys to GitHub Pages on every push
+index.html            home page: lists every folder found in contests/
+contests/<id>/        one contest (made by the ranking archiver notebook)
+    index.html        the scoreboard
+    data.json         its data
+    meta.json         title / participants (used by the home page)
+    logo.*, flags/    images
+tools/make_index.py   writes contests/index.json (used by the optional workflow)
+.github/workflows/    optional: keeps contests/index.json up to date
+.nojekyll             tells GitHub Pages not to run Jekyll
 ```
 
-## One-time setup
-1. Create a GitHub repository and upload everything in this folder (keep the `.github` folder).
-2. **Settings -> Pages -> Build and deployment -> Source: GitHub Actions.**
-3. Open the **Actions** tab: the first run starts by itself (or press *Run workflow*).
-   The site appears at `https://<user>.github.io/<repo>/`.
+## Publish
 
-## Adding / updating a contest
-1. Run the archiver notebook and unzip `<id>-contest-folder.zip`.
-2. Upload the `<id>` folder into `scoreboards/` (GitHub: *Add file -> Upload files*, drag the folder in; or `git add` / `git push`).
-3. Wait about a minute: the home page lists it and `contests/<id>/` is its scoreboard.
-   Uploading the same `<id>` again replaces it (handy for a contest that is still running).
+1. Create a GitHub repository and upload these files (the full-site zip from the notebook) to the `main` branch.
+2. **Settings -> Pages -> Build and deployment -> Deploy from a branch -> `main` / `(root)`**.
+3. The site is at `https://<user>.github.io/<repo>/`.
 
-Because `index.html` is rebuilt from `tools/viewer.html` on every run, a change to the viewer applies to every contest
-without re-scraping anything.
+## Add another contest
 
-## Try it locally
-```
-python3 tools/build_site.py
-python3 -m http.server -d _site      # then open http://localhost:8000/
-```
+Run the notebook for the new contest and upload the new `<id>` folder into `contests/` (drag it onto the GitHub page, or `git add contests/<id>`).
+Nothing else needs to change: the home page picks it up by itself.
+
+## Remove a contest
+
+Delete its folder from `contests/`.
