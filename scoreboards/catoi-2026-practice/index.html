@@ -21,20 +21,29 @@ body{margin:0;background:#fff;color:#222;font:16px/1.3 Arial,Helvetica,sans-seri
 table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
 th,td{padding:6px 10px;text-align:center;white-space:nowrap}
 th{background:#e2e2e2;background-clip:padding-box;border:2px solid #fff;border-radius:5px;color:#000;font-weight:700;height:40px;position:sticky;top:0}
-th:nth-child(1),td:nth-child(1){width:92px;min-width:92px;max-width:92px}
-th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
+.wrap th:nth-child(1),.wrap td:nth-child(1){width:46px;min-width:46px;max-width:46px;padding:0}
+.wrap th:nth-child(2),.wrap td:nth-child(2){width:92px;min-width:92px;max-width:92px}
+.wrap th:nth-child(3),.wrap td:nth-child(3){text-align:left}
+.wrap th:nth-child(4),.wrap td:nth-child(4){width:92px;min-width:92px;max-width:92px;padding:2px 4px}
+.ptable th:nth-child(1),.ptable td:nth-child(1){width:92px}
+.ptable td:nth-child(2){text-align:left}
+th.selh{cursor:pointer;font-size:22px;line-height:1}
+th.selh:hover{background:#d0d0d0}
+td.selc{cursor:pointer}
+.cb{display:block;width:26px;height:26px;margin:0 auto;border-radius:6px;border:2px solid transparent;box-sizing:border-box}
+td.selc:hover .cb{border-color:#aab0bb}
+.cb.on,td.selc:hover .cb.on{background:#3b6fc6;border-color:#3b6fc6}
+.cb.on::after{content:'✔';display:block;color:#fff;text-align:center;font-size:17px;line-height:22px}
+td.team img.flag{display:block;width:100%;max-width:none;height:40px;object-fit:contain;margin:0 auto;border:0;border-radius:3px;background:none}
 tbody tr{cursor:pointer;position:relative}
 tbody tr:nth-child(even){background:#f2f2f2}
 tbody tr:hover,tbody tr:focus-visible{background:#e8eef6;outline:none}
 tr.sel td{font-weight:700}
-tbody tr.pin td{box-shadow:inset 0 0 0 100px rgba(0,0,0,.05);font-weight:700}
-tbody tr.pin td:nth-child(2),tbody tr.pin td:nth-child(3){background:#e4e4e4}
+tbody tr.pin td{font-weight:700}
 tbody tr.none{cursor:default;background:none!important}
-td.rank{cursor:pointer;font-weight:700;color:#1c1e24;border-radius:8px;position:relative;overflow:visible}
-td.rank.un{color:#888;font-style:italic}
-td.rank:hover{box-shadow:inset 0 0 0 100px rgba(0,0,0,.1)}
-tbody tr.pin td.rank{box-shadow:inset 0 0 0 100px rgba(0,0,0,.12)}
-tbody tr.pin td.rank:hover{box-shadow:inset 0 0 0 100px rgba(0,0,0,.2)}
+td.rank{font-weight:700;color:#1c1e24;border-radius:8px;position:relative;overflow:visible}
+td.rank.un{color:rgba(28,30,36,.55);font-style:italic}
+.ast{cursor:help;text-decoration:none}
 .chg{position:absolute;right:5px;top:50%;margin-top:-7px;line-height:14px;font-size:10px;font-weight:700;font-style:normal;animation:chgfade 4s linear forwards}
 .chg.up{color:#17701f}
 .chg.dn{color:#b3261e}
@@ -49,14 +58,18 @@ td.cell .sb{margin:3px auto 0}
 th[data-k]{cursor:pointer}
 th[data-k]:hover,th.act{background:#d6d6d6}
 th.act::after{content:" ▼";font-size:10px}
-.sb{display:flex;gap:2px;width:max-content;margin:3px 0 0 auto}
-.sb i{flex:none;height:5px;border-radius:2px;background:#9ca3af;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
-.sb i.p{background:#facc15}
-.sb i.f{background:#4ade80}
+.sb{display:flex;gap:0;width:max-content;margin:3px 0 0 auto}
+.sb i{flex:none;box-sizing:border-box;height:6px;background-color:#9ca3af}
+.sb i+i{border-left:2px solid transparent;background-clip:padding-box}
+.sb i.p{background-color:#facc15}
+.sb i.f{background-color:#4ade80}
 .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 .un{color:#888;font-style:italic}
 .rk{display:inline-block;min-width:28px;padding:1px 6px;border-radius:10px;text-align:center;color:#1c1e24;font-weight:700;font-style:normal}
-#feed{position:sticky;top:12px;max-height:85vh;overflow:auto;border:1px solid #ddd;border-radius:5px;background:#fff}
+#feed{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid #ddd;border-radius:5px;background:#fff}
+.side{position:sticky;top:12px;display:flex;flex-direction:column;max-height:calc(100vh - 24px)}
+#clogo{display:block;flex:none;width:100%;height:auto;max-height:220px;margin:0;object-fit:contain;box-sizing:border-box;background:#fff;border:1px solid #ddd;border-bottom:0;border-radius:5px 5px 0 0}
+#clogo:not([hidden])+#feed{border-top-left-radius:0;border-top-right-radius:0}
 #feed h3{margin:0;padding:10px 12px;font-size:16px;text-align:center;background:#e2e2e2;position:sticky;top:0;z-index:1}
 #subs{list-style:none;margin:0;padding:0}
 #subs li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 12px;cursor:pointer}
@@ -67,12 +80,12 @@ th.act::after{content:" ▼";font-size:10px}
 #subs .empty{color:#888;cursor:default}
 #subs .rt{display:flex;flex-direction:column;align-items:flex-end}
 #subs .sc{padding:1px 8px;border-radius:4px;min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:block;overflow-y:auto;overscroll-behavior:contain;padding:0 16px;z-index:10}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:0 16px;z-index:10;overflow-y:auto;overscroll-behavior:contain}
 .modal[hidden]{display:none}
-.card{background:#fff;max-width:1150px;width:100%;margin:0 auto 56px;padding:18px 28px 30px;position:relative;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.card{background:#fff;max-width:1150px;width:100%;flex:none;padding:20px 28px 24px;margin-bottom:48px;border-radius:8px;position:relative}
 .card h2{margin:0;text-align:center;font-size:32px;font-weight:400;color:#000}
 .meta{text-align:center;color:#666;font-size:14px;margin-bottom:6px}
-#close{position:absolute;top:6px;right:12px;border:0;background:none;color:#888;font-size:30px;line-height:1;cursor:pointer}
+#close{position:absolute;top:12px;right:12px;border:0;background:none;color:#888;font-size:30px;line-height:1;cursor:pointer}
 svg{width:100%;height:auto;display:block}
 svg text{fill:#222;font-size:11px}
 .grid{stroke:#ddd;stroke-width:1}
@@ -83,7 +96,7 @@ circle.dot:hover,circle.dot.on{fill:var(--score)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;font-size:12px;color:#555;margin-top:2px}
 .pick{min-height:2.6em;margin-top:6px;text-align:center;font-size:14px}
 .tip{font-size:13px;color:#666;text-align:center;min-height:2.8em;margin-top:6px}
-.ptwrap{overflow-x:auto;margin-top:14px}
+.ptwrap{max-height:300px;overflow:auto;margin-top:14px}
 .ptable{border-collapse:separate;border-spacing:2px;width:100%}
 .ptable th{background:#ddd;border:0;border-radius:0;height:auto;font-weight:400;font-size:16px;padding:5px 8px}
 .ptable td{padding:5px 8px;font-size:16px}
@@ -114,16 +127,14 @@ circle.dot:hover,circle.dot.on{fill:var(--score)}
 .topbar #home{color:#2a5db0;text-decoration:none;font-size:14px;white-space:nowrap}
 .topbar #home:hover{text-decoration:underline}
 .topbar #ctitle{font-size:16px;color:#222}
-.topbar #clogo{height:28px;width:auto}
 .topbar label.chk{flex:none;min-width:0;gap:6px;cursor:pointer;white-space:nowrap}
 </style>
 </head>
 <body>
 <header class="topbar">
   <a id="home" href="../../" title="All contests">&larr; Contests</a>
-  <img id="clogo" alt="" hidden>
   <strong id="ctitle"></strong>
-  <input type="search" id="q" placeholder="Search name or country">
+  <input type="search" id="q" placeholder="Search name or team">
   <label class="chk"><input type="checkbox" id="uo" checked> Show unofficial</label>
   <label class="chk"><input type="checkbox" id="so"> Show selected only</label>
   <span class="ctl"><button id="play" type="button" title="Play / pause">▶</button><span class="ctl" id="spd"></span></span>
@@ -135,7 +146,7 @@ circle.dot:hover,circle.dot.on{fill:var(--score)}
     <div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
     <div id="pinbox" hidden><h3>Selected contestants: total score over time</h3><svg id="pinchart" viewBox="0 0 960 290" role="img" aria-label="Total score over time of the selected contestants"></svg><div class="legend" id="pinleg"></div><div class="tip" id="pintip"></div></div>
   </section>
-  <aside id="feed"><h3>Submissions</h3><ul id="subs"></ul></aside>
+  <div class="side"><img id="clogo" alt="" hidden><aside id="feed"><h3>Submissions</h3><ul id="subs"></ul></aside></div>
 </div>
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dname" hidden>
@@ -155,16 +166,15 @@ circle.dot:hover,circle.dot.on{fill:var(--score)}
 <script>
 const $ = id => document.getElementById(id);
 let D, T, S, R, W, maxTotal, sel = null, PROWS = [], timeIdx = 0, FEED = [], sortK = null, showUnoff = true, OFF = [], NOFF = 0, CNT = [], CUT = [], view = null, ST = [], RT = [], WT = [], CUTT = [], CH = null, PIN = new Set(), playing = false, playT = 0, lastTs = 0, raf = 0, SPEED = 1;
-let HM = new Set(), CHG = new Map(), LASTR = new Map(), SO = false, CHST = null, chartRaf = 0;
+let curT = 0, HM = new Set(), CHG = new Map(), LASTR = new Map(), SO = false, CHST = null, chartRaf = 0;
 const MC = ['#d4af37', '#a8b0ba', '#b87333'], MN = ['Gold', 'Silver', 'Bronze'];
 
-const DATA = {"title":"CatOI 2026 Practice Contest","duration":9599.0,"tasks":[{"name":"A+B","subtasks":[{"max":0.0},{"max":20.0},{"max":80.0}]},{"name":"Magic Trick","subtasks":[{"max":0.0},{"max":5.0},{"max":10.0},{"max":17.0},{"max":25.0},{"max":19.0},{"max":24.0}]}],"users":[{"name":"Xiong Junyi","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Callum Goh Jia Hao","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Kancharla Sai Harshith","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Tam Jing Ying","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Eliza Soh","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Gavin Lim","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Caleb Lai","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Kieran Zhuoyang Kadariya","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Zhi Hong Tan","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Choon Hou Meng Emmanuel","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Chan Yu Jun Jayden","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Arya Jaladanki","country":"Anderson Secondary School","subs":[[7746.8,0,[0.0,20.0,80.0]],[7768.4,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[7774.983333,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"AND"},{"name":"Mukadam Naif Zuber","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Ng Jun Xi Oliver","country":"Victoria School","subs":[[4803.55,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Crystal Baktiar","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Aydin Farhan","country":"Victoria School","subs":[[132.166667,0,[0.0,0.0,0.0]],[133.666667,0,[0.0,20.0,80.0]],[199.833333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[205.416667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Shriansh Jaiswal","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Yuen Xi Chua","country":"Dunman High School","subs":[[486.45,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]],[488.083333,0,[0.0,20.0,80.0]]],"team":"DHS"},{"name":"Jordon Chew Jie Le","country":"Victoria School","subs":[[7396.4,0,[0.0,0.0,0.0]],[7403.866667,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Enoch Tang","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Ooi Yun Xuan","country":"Dunman High School","subs":[[2170.6,0,[0.0,0.0,0.0]],[2178.116667,0,[0.0,20.0,80.0]],[2198.816667,0,[0.0,0.0,0.0]],[4426.316667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[4429.15,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"DHS"},{"name":"Chew Yang Tong","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Leonard Leong","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Wang Haozhong","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Zheng Zimo","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Nikhil Siddharth Suresh","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Alfred Mook","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Aedan Kok","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Gordon Chau Yu Zhe","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Nguyen Manh Luan","country":"Anderson Serangoon Junior College","subs":[[558.933333,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"ASR","unofficial":true},{"name":"Vijay Ganesh Rohan","country":"Victoria School","subs":[[400.3,0,[0.0,20.0,80.0]],[441.683333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[465.8,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[6331.733333,1,[0.0,5.0,0.0,0.0,0.0,0.0,0.0]],[6341.766667,1,[0.0,5.0,0.0,0.0,0.0,0.0,0.0]],[6344.45,1,[0.0,5.0,10.0,0.0,25.0,0.0,0.0]],[6346.283333,1,[0.0,5.0,10.0,0.0,25.0,0.0,0.0]],[6350.316667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Gabriel Ong Zhi Jie","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Jude Loh","country":"Victoria School","subs":[[7423.0,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Pasit Sangprachathanarak","country":"Anglo Chinese School (Independent)","subs":[[785.6,0,[0.0,20.0,80.0]],[794.766667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[799.116667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"ACSI","unofficial":true},{"name":"Edric Teo","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Jonas Tan","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Yuan Enrui","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Jade Li","country":"Nanyang Junior College","subs":[[125.266667,0,[0.0,20.0,80.0]],[162.366667,1,[0.0,0.0,10.0,0.0,0.0,0.0,0.0]],[183.45,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[341.0,1,[0.0,5.0,10.0,17.0,0.0,0.0,0.0]],[353.266667,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"NYJ"},{"name":"Yong Rui Ng","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Joel Ho","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Keene Terry Sumenap","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Eyenn Teo","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Reuben Kaileb Lapuz","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Lee Zhi Yong Isaac Evan","country":"Victoria School","subs":[[159.666667,0,[0.0,20.0,80.0]],[6184.1,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Yunqi Shao","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Gu Guozheng","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Pham Duy Hai","country":"National Junior College","subs":[],"team":"NJC","unofficial":true},{"name":"Amanda Tan Yi Xuan","country":"Nanyang Junior College","subs":[[4772.2,0,[0.0,20.0,80.0]],[4898.716667,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[4919.5,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"NYJ"},{"name":"Keegen Ichwandi","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Nicholas Weng","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Rainer Tan","country":"Nanyang Junior College","subs":[[2843.266667,0,[0.0,20.0,80.0]]],"team":"NYJ"},{"name":"Jasper Quentin Lee Wei Yang","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Chia Hao Lin Elgin","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Zach Lim","country":"Victoria School","subs":[[107.516667,0,[0.0,20.0,80.0]],[120.983333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[131.966667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[145.616667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[147.766667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[150.216667,0,[0.0,0.0,0.0]],[160.683333,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[162.383333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[6353.283333,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[6359.266667,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[6360.916667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Bryan Chang","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Yeo Hsuan Yee Kummen","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Tan Bo Yang","country":"Nanyang Junior College","subs":[[6274.683333,0,[0.0,20.0,80.0]]],"team":"NYJ"},{"name":"Le Xuan Tung","country":"River Valley High School","subs":[],"team":"RVH","unofficial":true},{"name":"Tan Yi Kai","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Shashi Srinivasan","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Liu Si Ru","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Sun Qizhi","country":"Nanyang Junior College","subs":[[350.833333,0,[0.0,20.0,80.0]],[377.1,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"NYJ"},{"name":"Matthew Silaban","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Feiyang Huang","country":"Dunman High School","subs":[[24.483333,0,[0.0,20.0,80.0]],[124.25,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[126.216667,1,[0.0,0.0,10.0,0.0,0.0,0.0,0.0]],[140.333333,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"DHS"},{"name":"Joaquin Matvey Guevara","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Kwek Shu Jia Jeffrey","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Kendrik Cheah Kwan Yung","country":"Victoria School","subs":[[6659.166667,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Gandepalli Shanjana","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Jamier Chin Yuan On","country":"Anderson Secondary School","subs":[[5984.716667,0,[0.0,20.0,80.0]],[6024.35,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"AND"},{"name":"Grayson Valencio Hernawan","country":"Anderson Secondary School","subs":[],"team":"AND"}],"teamLabel":"School","teamShow":"image","teams":{"VSH":{"name":"Victoria School","flag":"flags/VSH.png"},"DHS":{"name":"Dunman High School","flag":"flags/DHS.png"},"NJC":{"name":"National Junior College","flag":"flags/NJC.png"},"AND":{"name":"Anderson Secondary School","flag":"flags/AND.png"},"ASR":{"name":"Anderson Serangoon Junior College","flag":"flags/ASR.png"},"RVH":{"name":"River Valley High School","flag":"flags/RVH.png"},"NYJ":{"name":"Nanyang Junior College","flag":"flags/NYJ.png"},"ACSI":{"name":"Anglo Chinese School (Independent)","flag":"flags/ACSI.png"}},"logo":"logo.png"};
+const DATA = {"title":"CatOI 2026 Practice Contest","duration":9599.0,"tasks":[{"name":"A+B","subtasks":[{"max":0.0},{"max":20.0},{"max":80.0}]},{"name":"Magic Trick","subtasks":[{"max":0.0},{"max":5.0},{"max":10.0},{"max":17.0},{"max":25.0},{"max":19.0},{"max":24.0}]}],"users":[{"name":"Xiong Junyi","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Callum Goh Jia Hao","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Kancharla Sai Harshith","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Tam Jing Ying","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Eliza Soh","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Gavin Lim","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Caleb Lai","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Kieran Zhuoyang Kadariya","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Zhi Hong Tan","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Choon Hou Meng Emmanuel","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Chan Yu Jun Jayden","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Arya Jaladanki","country":"Anderson Secondary School","subs":[[7746.8,0,[0.0,20.0,80.0]],[7768.4,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[7774.983333,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"AND"},{"name":"Mukadam Naif Zuber","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Ng Jun Xi Oliver","country":"Victoria School","subs":[[4803.55,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Crystal Baktiar","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Aydin Farhan","country":"Victoria School","subs":[[132.166667,0,[0.0,0.0,0.0]],[133.666667,0,[0.0,20.0,80.0]],[199.833333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[205.416667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Shriansh Jaiswal","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Yuen Xi Chua","country":"Dunman High School","subs":[[486.45,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]],[488.083333,0,[0.0,20.0,80.0]]],"team":"DHS"},{"name":"Jordon Chew Jie Le","country":"Victoria School","subs":[[7396.4,0,[0.0,0.0,0.0]],[7403.866667,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Enoch Tang","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Ooi Yun Xuan","country":"Dunman High School","subs":[[2170.6,0,[0.0,0.0,0.0]],[2178.116667,0,[0.0,20.0,80.0]],[2198.816667,0,[0.0,0.0,0.0]],[4426.316667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[4429.15,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"DHS"},{"name":"Chew Yang Tong","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Leonard Leong","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Wang Haozhong","country":"Dunman High School","subs":[[8069.383333,0,[0.0,20.0,80.0]]],"team":"DHS"},{"name":"Zheng Zimo","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Nikhil Siddharth Suresh","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Alfred Mook","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Aedan Kok","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Gordon Chau Yu Zhe","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Nguyen Manh Luan","country":"Anderson Serangoon Junior College","subs":[[558.933333,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"ASR","unofficial":true},{"name":"Vijay Ganesh Rohan","country":"Victoria School","subs":[[400.3,0,[0.0,20.0,80.0]],[441.683333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[465.8,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[6331.733333,1,[0.0,5.0,0.0,0.0,0.0,0.0,0.0]],[6341.766667,1,[0.0,5.0,0.0,0.0,0.0,0.0,0.0]],[6344.45,1,[0.0,5.0,10.0,0.0,25.0,0.0,0.0]],[6346.283333,1,[0.0,5.0,10.0,0.0,25.0,0.0,0.0]],[6350.316667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Gabriel Ong Zhi Jie","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Jude Loh","country":"Victoria School","subs":[[7423.0,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Pasit Sangprachathanarak","country":"Anglo Chinese School (Independent)","subs":[[785.6,0,[0.0,20.0,80.0]],[794.766667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[799.116667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"ACSI","unofficial":true},{"name":"Edric Teo","country":"Dunman High School","subs":[[8102.05,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[8105.733333,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"DHS"},{"name":"Jonas Tan","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Yuan Enrui","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Jade Li","country":"Nanyang Junior College","subs":[[125.266667,0,[0.0,20.0,80.0]],[162.366667,1,[0.0,0.0,10.0,0.0,0.0,0.0,0.0]],[183.45,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[341.0,1,[0.0,5.0,10.0,17.0,0.0,0.0,0.0]],[353.266667,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]],[7895.283333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[7906.733333,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[7911.316667,1,[0.0,5.0,10.0,0.0,25.0,0.0,0.0]],[7943.683333,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"NYJ"},{"name":"Yong Rui Ng","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Joel Ho","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Keene Terry Sumenap","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Eyenn Teo","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Reuben Kaileb Lapuz","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Lee Zhi Yong Isaac Evan","country":"Victoria School","subs":[[159.666667,0,[0.0,20.0,80.0]],[6184.1,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Yunqi Shao","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Gu Guozheng","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Pham Duy Hai","country":"National Junior College","subs":[],"team":"NJC","unofficial":true},{"name":"Amanda Tan Yi Xuan","country":"Nanyang Junior College","subs":[[4772.2,0,[0.0,20.0,80.0]],[4898.716667,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[4919.5,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"NYJ"},{"name":"Keegen Ichwandi","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Nicholas Weng","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Rainer Tan","country":"Nanyang Junior College","subs":[[2843.266667,0,[0.0,20.0,80.0]]],"team":"NYJ"},{"name":"Jasper Quentin Lee Wei Yang","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Chia Hao Lin Elgin","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Zach Lim","country":"Victoria School","subs":[[107.516667,0,[0.0,20.0,80.0]],[120.983333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[131.966667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[145.616667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[147.766667,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[150.216667,0,[0.0,0.0,0.0]],[160.683333,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[162.383333,1,[0.0,0.0,0.0,0.0,0.0,0.0,0.0]],[6353.283333,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[6359.266667,1,[0.0,5.0,0.0,0.0,25.0,0.0,0.0]],[6360.916667,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"VSH"},{"name":"Bryan Chang","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Yeo Hsuan Yee Kummen","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Tan Bo Yang","country":"Nanyang Junior College","subs":[[6274.683333,0,[0.0,20.0,80.0]]],"team":"NYJ"},{"name":"Le Xuan Tung","country":"River Valley High School","subs":[],"team":"RVH","unofficial":true},{"name":"Tan Yi Kai","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Shashi Srinivasan","country":"Victoria School","subs":[],"team":"VSH"},{"name":"Liu Si Ru","country":"Dunman High School","subs":[],"team":"DHS"},{"name":"Sun Qizhi","country":"Nanyang Junior College","subs":[[350.833333,0,[0.0,20.0,80.0]],[377.1,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"NYJ"},{"name":"Matthew Silaban","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Feiyang Huang","country":"Dunman High School","subs":[[24.483333,0,[0.0,20.0,80.0]],[124.25,1,[0.0,5.0,10.0,0.0,0.0,0.0,0.0]],[126.216667,1,[0.0,0.0,10.0,0.0,0.0,0.0,0.0]],[140.333333,1,[0.0,0.0,10.0,17.0,0.0,0.0,0.0]]],"team":"DHS"},{"name":"Joaquin Matvey Guevara","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Kwek Shu Jia Jeffrey","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Kendrik Cheah Kwan Yung","country":"Victoria School","subs":[[6659.166667,0,[0.0,20.0,80.0]]],"team":"VSH"},{"name":"Gandepalli Shanjana","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Jamier Chin Yuan On","country":"Anderson Secondary School","subs":[[5984.716667,0,[0.0,20.0,80.0]],[6024.35,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]],"team":"AND"},{"name":"Grayson Valencio Hernawan","country":"Anderson Secondary School","subs":[],"team":"AND"},{"name":"Yee Aik Jing","country":"Nanyang Junior College","subs":[],"team":"NYJ"},{"name":"Testing Account","country":"","subs":[[8215.166667,0,[0.0,20.0,80.0]],[8259.533333,1,[0.0,5.0,10.0,17.0,25.0,19.0,24.0]]]}],"teamLabel":"Team","teamShow":"image","teams":{"VSH":{"name":"Victoria School","flag":"flags/VSH.png"},"DHS":{"name":"Dunman High School","flag":"flags/DHS.png"},"NJC":{"name":"National Junior College","flag":"flags/NJC.png"},"AND":{"name":"Anderson Secondary School","flag":"flags/AND.png"},"ASR":{"name":"Anderson Serangoon Junior College","flag":"flags/ASR.png"},"RVH":{"name":"River Valley High School","flag":"flags/RVH.png"},"NYJ":{"name":"Nanyang Junior College","flag":"flags/NYJ.png"},"ACSI":{"name":"Anglo Chinese School (Independent)","flag":"flags/ACSI.png"}},"logo":"logo.png"};
 
 function init(d) {
   D = d;
   document.title = d.title;
   $('ctitle').textContent = d.title;
-  if (d.logo) { const lg = $('clogo'); lg.onerror = () => { lg.hidden = true; }; lg.src = d.logo; lg.hidden = false; }
   if (location.protocol === 'file:') $('home').style.display = 'none';
   // Tasks without subtasks are treated as a single subtask worth the task's max.
   d.tasks.forEach(t => {
@@ -250,9 +260,12 @@ function init(d) {
   });
 
   const slider = $('t');
-  slider.max = T.length - 1;
-  slider.value = timeIdx = T.length - 1;
-  slider.oninput = () => { timeIdx = +slider.value; pause(); renderTable(); };
+  // The slider is linear in contest time (one step = one second), not in submission events.
+  slider.max = Math.round(d.duration * 60);
+  slider.value = slider.max;
+  curT = d.duration;
+  timeIdx = T.length - 1;
+  slider.oninput = () => { pause(); curT = Math.min(D.duration, +slider.value / 60); timeIdx = idxAt(curT); renderTable(); };
   $('play').onclick = togglePlay;
   $('spd').innerHTML = SPEEDS.map(v => `<button type="button" data-s="${v}" class="${v === SPEED ? 'on' : ''}">x${v}</button>`).join('');
   $('spd').querySelectorAll('button').forEach(b => b.onclick = () => {
@@ -260,7 +273,8 @@ function init(d) {
     $('spd').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
   });
   $('q').oninput = renderTable;
-  $('q').placeholder = 'Search name or ' + (d.teamLabel || 'country').toLowerCase();
+  $('q').placeholder = 'Search name or ' + (d.teamLabel || 'team').toLowerCase();
+  if (d.logo) { const lg = $('clogo'); lg.onerror = () => { lg.hidden = true; }; lg.src = d.logo; lg.hidden = false; }
   $('so').onchange = () => { SO = $('so').checked; renderTable(); };
   $('pinchart').onmousemove = pinMove;
   setupChartHover();
@@ -270,9 +284,15 @@ function init(d) {
   $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && sel !== null) closeModal(); });
 
-  $('head').innerHTML = '<tr><th>#</th><th>Name</th><th>' + esc(d.teamLabel || 'Country') + '</th>' +
+  $('head').innerHTML = '<tr><th class="selh" id="selall" title="Select / deselect every row shown">✔</th><th>#</th><th>Name</th><th>' + esc(d.teamLabel || 'Team') + '</th>' +
     d.tasks.map((t, k) => `<th data-k="${k}" tabindex="0" title="Sort by ${esc(t.name)}">${LT(k)}</th>`).join('') +
     '<th data-k="" tabindex="0" title="Sort by total">Total</th></tr>';
+  $('selall').onclick = () => {
+    const shown = [...document.querySelectorAll('#body tr[data-i]')].map(tr => +tr.dataset.i);
+    const all = shown.length > 0 && shown.every(i => PIN.has(i));
+    shown.forEach(i => all ? PIN.delete(i) : PIN.add(i));
+    renderTable();
+  };
   document.querySelectorAll('#head th[data-k]').forEach(th => {
     const go = () => { sortK = th.dataset.k === '' ? null : +th.dataset.k; renderTable(); };
     th.onclick = go;
@@ -283,6 +303,14 @@ function init(d) {
 }
 
 const LT = k => String.fromCharCode(65 + k % 26);
+// Axis time markers: a "nice" step (in minutes) that keeps the number of markers at 10 or fewer.
+const tickStep = dur => [1, 2, 5, 10, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720, 1440, 2880, 5760].find(v => Math.floor(dur / v) + 1 <= 10) || 5760;
+const tickLbl = m => m % 60 === 0 ? m / 60 + 'h' : m < 60 ? m + 'm' : Math.floor(m / 60) + 'h' + String(m % 60).padStart(2, '0');
+function timeTicks(y, X, dur) {
+  let g = '';
+  for (let m = 0, st = tickStep(dur); m <= dur + 1e-9; m += st) g += `<text x="${X(m)}" y="${y}" text-anchor="middle">${tickLbl(m)}</text>`;
+  return g;
+}
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtT = m => {
   const s = Math.floor(m * 60 + 0.01);
@@ -296,28 +324,34 @@ function setTl(t) {
 }
 // Playback: x1 = 1 contest minute per real second.
 const SPEEDS = [1, 2, 4, 8, 16];
+function idxAt(t) {                      // last timeline index whose time is <= t
+  let lo = 0, hi = T.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (T[mid] <= t + 1e-9) lo = mid; else hi = mid - 1; }
+  return lo;
+}
 function pause() {
   playing = false;
   cancelAnimationFrame(raf);
-  playT = T[timeIdx];
+  playT = curT;
   $('play').textContent = '▶';
-  setTl(playT);
+  setTl(curT);
 }
 function frame(ts) {
   if (!playing) return;
   playT = Math.min(D.duration, playT + (ts - lastTs) / 1000 * SPEED);
   lastTs = ts;
-  let i = timeIdx;
-  while (i + 1 < T.length && T[i + 1] <= playT) i++;
-  if (i !== timeIdx) { timeIdx = i; $('t').value = i; renderTable(); }
-  else setTl(playT);
-  if (playT >= D.duration) { timeIdx = T.length - 1; $('t').value = timeIdx; renderTable(); pause(); return; }
+  curT = playT;
+  $('t').value = Math.round(curT * 60);
+  const i = idxAt(curT);
+  if (i !== timeIdx) { timeIdx = i; renderTable(); }
+  else { setTl(curT); if (PIN.size) renderPinChart(); }
+  if (playT >= D.duration) { curT = D.duration; timeIdx = T.length - 1; $('t').value = $('t').max; renderTable(); pause(); return; }
   raf = requestAnimationFrame(frame);
 }
 function togglePlay() {
   if (playing) { pause(); return; }
-  if (timeIdx >= T.length - 1) { timeIdx = 0; $('t').value = 0; renderTable(); }
-  playT = T[timeIdx];
+  if (curT >= D.duration - 1e-9) { curT = 0; timeIdx = 0; $('t').value = 0; renderTable(); }
+  playT = curT;
   playing = true;
   $('play').textContent = '⏸';
   lastTs = performance.now();
@@ -346,14 +380,16 @@ function scoreStyle(v, max) {
 function barsHtml(tk, vals) {
   return '<div class="sb">' + tk.subtasks.map((s, j) => {
     const v = vals[j] || 0, c = v <= 0 ? '' : v >= s.max ? 'f' : 'p';
-    return `<i class="${c}" style="width:${Math.max(3, s.max * 0.7)}px" title="Subtask ${j}: ${fmt(v)}/${fmt(s.max)}"></i>`;
+    return `<i class="${c}" style="width:${Math.max(6, s.max * 0.7)}px" title="Subtask ${j}: ${fmt(v)}/${fmt(s.max)}"></i>`;
   }).join('') + '</div>';
 }
 
 const r2 = v => Math.round(v * 100) / 100;
 const sum = a => r2(a.reduce((x, v) => x + v, 0));
 const fmt = v => String(r2(v));
-const rankTxt = (r, w, off) => off ? '' + r : '(' + r + ')';
+// Unofficial contestants get an asterisk (hover for the explanation) instead of brackets.
+const AST = '<span class="ast" title="Unofficial">*</span>';
+const rankTxt = (r, w, off) => off ? '' + r : r + AST;
 
 // Team info (name + optional flag image) for a contestant; D.teams is keyed by u.team.
 const teamKey = u => u.team != null ? 'T' + u.team : 'C' + u.country;
@@ -374,7 +410,7 @@ function medalAt(u, i) {
   for (let m = 0; m < 3; m++) if (CUT[m][i] != null && s >= CUT[m][i]) return m;
   return -1;
 }
-// Honourable mention: the top non-zero, non-medal scorer of each school (official and unofficial together).
+// Honourable mention: the top non-zero scorer of each school among those without a medal (official and unofficial together).
 const HMC = '#b69be0', AWC = [...MC, HMC], AWN = [...MN, 'Honourable mention'];
 function hmFor(i) {
   const best = new Map();
@@ -398,7 +434,7 @@ function rankCell(u, i) {
     const el = performance.now() - ch.at;
     if (el < 4000) arrow = `<span class="chg ${ch.d > 0 ? 'up' : 'dn'}" style="animation-delay:-${Math.round(el)}ms" title="${ch.d > 0 ? 'Up' : 'Down'} ${Math.abs(ch.d)}">${ch.d > 0 ? '▲' : '▼'}${Math.abs(ch.d)}</span>`;
   }
-  return `<td class="rank ${OFF[u] ? '' : 'un'}"${a >= 0 ? ` style="background:${AWC[a]}"` : ''} title="${a >= 0 ? AWN[a] + ' · ' : ''}Click to select this row">${OFF[u] ? r : '(' + r + ')'}${arrow}</td>`;
+  return `<td class="rank ${OFF[u] ? '' : 'un'}"${a >= 0 ? ` style="background:${AWC[a]}"` : ''}${a >= 0 ? ` title="${AWN[a]}"` : ''}>${r}${OFF[u] ? '' : AST}${arrow}</td>`;
 }
 
 // Only submissions from contestants currently shown in the scoreboard are listed.
@@ -415,7 +451,7 @@ function renderFeed(t, q) {
   $('feed').querySelector('h3').textContent = q ? 'Submissions (filtered)' : 'Submissions';
   $('subs').innerHTML = items.length ? items.map(s => {
     const tk = D.tasks[s.k];
-    return `<li data-i="${s.i}" data-n="${s.n}"><div><span class="pn" title="${esc(tk.name)}">${LT(s.k)}</span><span class="who">${esc(D.users[s.i].name)}${OFF[s.i] ? '' : '*'} · ${fmtT(s.t)}</span></div>` +
+    return `<li data-i="${s.i}" data-n="${s.n}"><div><span class="pn" title="${esc(tk.name)}">${LT(s.k)}</span><span class="who">${esc(D.users[s.i].name)}${OFF[s.i] ? '' : AST} · ${fmtT(s.t)}</span></div>` +
       `<div class="rt"><span class="sc">${fmt(s.score)}</span>${barsHtml(tk, s.arr)}</div></li>`;
   }).join('') : '<li class="empty">No submissions yet.</li>';
   // Clicking a submission opens that person's profile with this submission highlighted.
@@ -455,7 +491,7 @@ function renderTable() {
     LASTR.set(a, r);
   });
   HM = hmFor(timeIdx);
-  setTl(playing ? playT : t);
+  setTl(curT);
   renderFeed(t, q);
   document.querySelectorAll('#head th[data-k]').forEach(th =>
     th.classList.toggle('act', (th.dataset.k === '' ? null : +th.dataset.k) === sortK));
@@ -474,21 +510,21 @@ function renderTable() {
         return `<td class="cell" style="${scoreStyle(total, tk.max)}"><div>${fmt(total)}</div>${barsHtml(tk, best[k])}</td>`;
       }).join('');
       return `<tr tabindex="0" data-i="${i}" class="${i === sel ? 'sel' : ''}${PIN.has(i) ? ' pin' : ''}">` +
-        rankCell(i, timeIdx) +
-        `<td>${esc(u.name)}${OFF[i] ? '' : '*'}</td><td>${teamHtml(u)}</td>` +
+        `<td class="selc" title="Select this row"><span class="cb ${PIN.has(i) ? 'on' : ''}"></span></td>` + rankCell(i, timeIdx) +
+        `<td>${esc(u.name)}${OFF[i] ? '' : AST}</td><td class="team">${teamHtml(u)}</td>` +
         cells + `<td class="tot cell" style="${scoreStyle(S[i][timeIdx], maxTotal)}">${fmt(S[i][timeIdx])}</td></tr>`;
     }).join('');
-  $('body').innerHTML = html || `<tr class="none"><td colspan="${D.tasks.length + 4}" style="color:#888;padding:18px">${SO && !PIN.size ? 'Nobody selected yet: click a rank (#) to select a row.' : 'No contestants match.'}</td></tr>`;
+  $('body').innerHTML = html || `<tr class="none"><td colspan="${D.tasks.length + 5}" style="color:#888;padding:18px">${SO && !PIN.size ? 'Nobody selected yet: tick the box at the left of a row to select it.' : 'No contestants match.'}</td></tr>`;
   document.querySelectorAll('#body tr[data-i]').forEach(tr => {
     const i = +tr.dataset.i;
     tr.onclick = () => openUser(i);
     tr.onkeydown = e => { if (e.key === 'Enter') openUser(i); };
-    // Clicking the rank (#) cell selects / deselects the row instead of opening the popup.
-    tr.querySelector('td.rank').onclick = e => {
+    // Clicking the checkbox cell selects / deselects the row instead of opening the popup.
+    tr.querySelector('td.selc').onclick = e => {
       e.stopPropagation();
       if (PIN.has(i)) PIN.delete(i); else PIN.add(i);
       if (SO) renderTable();
-      else { tr.classList.toggle('pin', PIN.has(i)); renderPinChart(); }
+      else { tr.classList.toggle('pin', PIN.has(i)); tr.querySelector('.cb').classList.toggle('on', PIN.has(i)); renderPinChart(); }
     };
   });
   const ms = playing ? Math.max(150, 500 / SPEED) : 500;
@@ -518,24 +554,25 @@ function renderPinChart() {
   const box = $('pinbox'), ids = [...PIN].filter(i => D.users[i]);
   if (!ids.length) { box.hidden = true; return; }
   box.hidden = false;
-  const x0 = 50, x1 = 950, top = 15, bot = 250, dur = D.duration, t = T[timeIdx];
+  const x0 = 50, x1 = 950, top = 15, bot = 250, dur = D.duration, t = curT;
   const X = v => x0 + (x1 - x0) * v / dur, Y = v => bot - (bot - top) * v / maxTotal;
   let g = `<rect class="plotbox" x="${x0}" y="${top}" width="${x1 - x0}" height="${bot - top}"/>`;
   for (let k = 0; k <= 4; k++) {
     const v = maxTotal * k / 4, y = Y(v);
     g += `<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/><text x="${x0 - 6}" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`;
   }
-  for (let h = 0; h <= Math.floor(dur / 60); h++) g += `<text x="${X(h * 60)}" y="${bot + 18}" text-anchor="middle">${h}h</text>`;
+  g += timeTicks(bot + 18, X, dur);
   const order = ids.slice().sort((a, b) => S[b][timeIdx] - S[a][timeIdx]);
   const col = new Map(ids.map((a, c) => [a, PAL[c % PAL.length]]));
   const lines = ids.map(a => {
     let d = `M${X(T[0])},${Y(S[a][0])}`;
     for (let j = 1; j <= timeIdx; j++) d += `H${X(T[j])}V${Y(S[a][j])}`;
+    d += `H${X(t)}`;
     return `<path d="${d}" fill="none" stroke="${col.get(a)}" stroke-width="2"/>`;
   }).join('');
   $('pinchart').innerHTML = g + lines + `<line class="cursor" x1="${X(t)}" x2="${X(t)}" y1="${top}" y2="${bot}"/>`;
   $('pinleg').innerHTML = order.map(a =>
-    `<span><span class="sw2" style="background:${col.get(a)}"></span>${esc(D.users[a].name)}${OFF[a] ? '' : '*'} (${fmt(S[a][timeIdx])})</span>`).join('');
+    `<span><span class="sw2" style="background:${col.get(a)}"></span>${esc(D.users[a].name)}${OFF[a] ? '' : AST} (${fmt(S[a][timeIdx])})</span>`).join('');
   $('pintip').textContent = 'Hover the graph to read values at a given time.';
 }
 function pinMove(e) {
@@ -543,7 +580,7 @@ function pinMove(e) {
   const svg = $('pinchart'), pt = svg.createSVGPoint();
   pt.x = e.clientX; pt.y = 0;
   const px = pt.matrixTransform(svg.getScreenCTM().inverse()).x;
-  const tt = Math.min(T[timeIdx], Math.max(0, (px - 50) / 900 * D.duration));
+  const tt = Math.min(curT, Math.max(0, (px - 50) / 900 * D.duration));
   let i = 0; while (i + 1 < T.length && T[i + 1] <= tt) i++;
   $('pintip').textContent = fmtT(tt) + ' — ' + ids.map(a => `${D.users[a].name}: ${fmt(S[a][i])}`).join(' · ');
 }
@@ -552,17 +589,16 @@ function openUser(i, n) {
   sel = i;
   const u = D.users[i], f = T.length - 1;
   const fl = flagSrc(u);
-  $('dname').innerHTML = (fl ? `<img class="flag" src="${esc(fl)}" alt="" onerror="this.remove()">` : '') + esc(u.name) + (OFF[i] ? '' : '*');
+  $('dname').innerHTML = (fl ? `<img class="flag" src="${esc(fl)}" alt="" onerror="this.remove()">` : '') + esc(u.name) + (OFF[i] ? '' : AST);
   const aw = awardAt(i, f, hmFor(f)), rr = R[i][f], ww = W[i][f];
   const rtxt = '' + rr;
   $('dmeta').textContent = `${u.country} · final score ${fmt(S[i][f])} · ` +
     (OFF[i] ? `final rank ${rtxt}` : `unofficial (would rank ${rtxt})`) +
     (aw >= 0 ? ` · ${AWN[aw]}${aw === 3 ? '' : OFF[i] ? ' medal' : ' level'}` : '');
   // Leave the top bar (time controls) visible, greyed out by the overlay, above the popup.
-  $('modal').style.paddingTop = document.querySelector('.topbar').offsetHeight + 28 + 'px';
+  $('modal').style.paddingTop = document.querySelector('.topbar').offsetHeight + 16 + 'px';
   $('modal').hidden = false;
   $('modal').scrollTop = 0;
-  document.body.style.overflow = 'hidden';
   $('close').focus();
   view = null;
   CHST = null;
@@ -617,7 +653,7 @@ function setView(k) {
 function renderRows() {
   const tkv = view === null ? null : D.tasks[view];
   const bestS = tkv ? tkv.subtasks.map((_, j) => PROWS.reduce((m, r) => Math.max(m, r.arr[j] || 0), 0)) : [];
-  $('pth').innerHTML = '<tr><th>Time</th><th>Problem</th>' +
+  $('pth').innerHTML = '<tr><th>Time</th><th>Problem</th>' + (tkv ? '' : '<th>Score</th>') +
     (tkv ? tkv.subtasks.map((st, j) => `<th class="stc">Subtask ${j} (${fmt(bestS[j])}/${fmt(st.max)})</th>`).join('') : '') +
     '<th>Cumulative score</th></tr>';
   $('ptb').innerHTML = PROWS.map(r => {
@@ -627,7 +663,8 @@ function renderRows() {
       return `<td style="${scoreStyle(v, st.max)}${r.imp[j] ? ';font-weight:700' : ''}">${fmt(v)}</td>`;
     }).join('') : '';
     return `<tr data-n="${r.n}"><td>${fmtT(r.t)}</td>` +
-      `<td style="background:${TASKC[r.k % TASKC.length]}">${esc(tk.name)} (${LT(r.k)})</td>${sc}` +
+      `<td style="background:${TASKC[r.k % TASKC.length]}">${esc(tk.name)} (${LT(r.k)})</td>` +
+      (tkv ? '' : `<td style="${scoreStyle(r.score, tk.max)}">${fmt(r.score)}${barsHtml(tk, r.arr)}</td>`) + sc +
       `<td style="${scoreStyle(r.cum, view === null ? maxTotal : tkv.max)}">${fmt(r.cum)}</td></tr>`;
   }).join('');
   document.querySelectorAll('#ptb tr').forEach(tr => tr.onclick = () => pickRow(+tr.dataset.n));
@@ -659,7 +696,6 @@ function pickRow(n) {
 function closeModal() {
   sel = null;
   $('modal').hidden = true;
-  document.body.style.overflow = '';
   renderTable();
 }
 
@@ -708,7 +744,7 @@ function paintChart(a, b, p) {
   let g = `<rect class="plotbox" x="${x0}" y="${sTop}" width="${x1 - x0}" height="${sBot - sTop}"/><rect class="plotbox" x="${x0}" y="${rTop}" width="${x1 - x0}" height="${rBot - rTop}"/>`;
   g += gridSvg(b, pb, same ? 1 : p);
   if (!same) g += gridSvg(a, pa, 1 - p);
-  for (let h = 0; h <= Math.floor(dur / 60); h++) g += `<text x="${CX(h * 60)}" y="${rBot + 18}" text-anchor="middle">${h}h</text>`;
+  g += timeTicks(rBot + 18, CX, dur);
   g += `<text x="${x0 + 4}" y="${sTop - 6}">Score</text><text x="${x0 + 4}" y="${rTop - 6}">Rank</text>`;
   const cut = (px, m, op) => `<path d="${stepPath(px.cut[m])}" fill="none" stroke="${MC[m]}" stroke-width="1.5" stroke-dasharray="5 3" opacity="${op}"/>`;
   const cutLines = [0, 1, 2].map(m => CNT[m] > 0 ? cut(pb, m, same ? 1 : p) + (same ? '' : cut(pa, m, 1 - p)) : '').join('');
@@ -751,7 +787,8 @@ function setupChartHover() {
     const t = Math.min(dur, Math.max(0, (px - x0) / (x1 - x0) * dur));
     let i = 0; while (i + 1 < T.length && T[i + 1] <= t) i++;
     cur.setAttribute('x1', CX(t)); cur.setAttribute('x2', CX(t)); cur.style.display = '';
-    $('tip').textContent = `${fmtT(t)} — score ${fmt(st.SS[u][i])}, rank ${st.RR[u][i]}`;
+    const rr = st.RR[u][i], ww = st.WW[u][i];
+    $('tip').textContent = `${fmtT(t)} — score ${fmt(st.SS[u][i])}, rank ${rr}`;
   };
   svg.onmousemove = move; svg.ontouchmove = move; svg.ontouchstart = move;
   svg.onmouseleave = () => { const cur = $('cur'); if (cur) cur.style.display = 'none'; };

@@ -26,9 +26,9 @@ a.card .m{font-size:13px;color:var(--mute);margin-top:2px}
 <main>
   <h1>Scoreboards</h1>
   <p class="sub">Pick a contest to open its live scoreboard replay.</p>
-  <input id="f" type="search" placeholder="Search contests" hidden>
+  <input id="f" type="search" placeholder="Search scoreboards" hidden>
   <div class="grid" id="grid"></div>
-  <p id="msg">Loading contests…</p>
+  <p id="msg">Loading scoreboards…</p>
 </main>
 <script>
 const REPO = "DevelopinPop/catoi-rankings-test";   // "owner/repo"; leave empty to guess it from the github.io address
@@ -45,24 +45,24 @@ function guessRepo() {
 }
 async function listIds() {
   const ids = new Set();
-  try { const j = await getJSON('contests/index.json'); (Array.isArray(j) ? j : j.contests || []).forEach(x => ids.add(x)); } catch (e) {}
+  try { const j = await getJSON('scoreboards/index.json'); (Array.isArray(j) ? j : j.scoreboards || j.contests || []).forEach(x => ids.add(x)); } catch (e) {}
   const repo = guessRepo();
   if (repo) {
-    try { (await getJSON('https://api.github.com/repos/' + repo + '/contents/contests')).filter(x => x.type === 'dir').forEach(x => ids.add(x.name)); } catch (e) {}
+    try { (await getJSON('https://api.github.com/repos/' + repo + '/contents/scoreboards')).filter(x => x.type === 'dir').forEach(x => ids.add(x.name)); } catch (e) {}
   }
   return [...ids];
 }
 (async () => {
   const ids = await listIds();
-  const metas = (await Promise.all(ids.map(id => getJSON('contests/' + encodeURIComponent(id) + '/meta.json').then(m => ({ ...m, id })).catch(() => null)))).filter(Boolean);
+  const metas = (await Promise.all(ids.map(id => getJSON('scoreboards/' + encodeURIComponent(id) + '/meta.json').then(m => ({ ...m, id })).catch(() => null)))).filter(Boolean);
   metas.sort((a, b) => String(b.generated || '').localeCompare(String(a.generated || '')));
-  if (!metas.length) { $('msg').textContent = 'No contests found yet. Upload a contest folder into the "contests" folder of this repository.'; return; }
+  if (!metas.length) { $('msg').textContent = 'No scoreboards found yet. Upload a contest folder into the "scoreboards" folder of this repository.'; return; }
   $('msg').hidden = true; $('f').hidden = false;
   const draw = () => {
     const q = $('f').value.trim().toLowerCase();
     $('grid').innerHTML = metas.filter(m => !q || (m.title + ' ' + m.id).toLowerCase().includes(q)).map(m =>
-      `<a class="card" href="contests/${encodeURIComponent(m.id)}/">` +
-      (m.logo ? `<img src="contests/${encodeURIComponent(m.id)}/${esc(m.logo)}" alt="" onerror="this.remove()">` : '') +
+      `<a class="card" href="scoreboards/${encodeURIComponent(m.id)}/">` +
+      (m.logo ? `<img src="scoreboards/${encodeURIComponent(m.id)}/${esc(m.logo)}" alt="" onerror="this.remove()">` : '') +
       `<div><div class="t">${esc(m.title)}</div><div class="m">${m.participants || 0} contestants · ${(m.tasks || []).length} problems</div></div></a>`).join('');
   };
   $('f').oninput = draw; draw();

@@ -3,14 +3,14 @@
 A static website (GitHub Pages) with one scoreboard per contest.
 
 ```
-index.html            home page: lists every folder found in contests/
-contests/<id>/        one contest (made by the ranking archiver notebook)
+index.html            home page: lists every folder found in scoreboards/
+scoreboards/<id>/     one contest (made by the ranking archiver notebook)
     index.html        the scoreboard
     data.json         its data
     meta.json         title / participants (used by the home page)
     logo.*, flags/    images
-tools/make_index.py   writes contests/index.json (used by the optional workflow)
-.github/workflows/    optional: keeps contests/index.json up to date
+tools/make_index.py   writes scoreboards/index.json (used by the optional workflow)
+.github/workflows/    optional: keeps scoreboards/index.json up to date
 .nojekyll             tells GitHub Pages not to run Jekyll
 ```
 
@@ -22,9 +22,9 @@ tools/make_index.py   writes contests/index.json (used by the optional workflow)
 
 ## Add another contest
 
-Run the notebook for the new contest and upload the new `<id>` folder into `contests/` (drag it onto the GitHub page, or `git add contests/<id>`).
+Run the notebook for the new contest and upload the new `<id>` folder into `scoreboards/` (drag it onto the GitHub page, or `git add scoreboards/<id>`).
 Nothing else needs to change: the home page picks it up by itself.
 
 ## Remove a contest
 
-Delete its folder from `contests/`.
+Delete its folder from `scoreboards/`.
